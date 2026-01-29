@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Home Page -->
+  <url>
+    <loc>https://yourportfolio.com/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- Projects Index -->
+  <url>
+    <loc>https://yourportfolio.com/projects</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Services -->
+  <url>
+    <loc>https://yourportfolio.com/services</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- About -->
+  <url>
+    <loc>https://yourportfolio.com/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Contact -->
+  <url>
+    <loc>https://yourportfolio.com/contact</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- 
+    DYNAMIC CONTENT:
+    Individual project pages (/projects/:slug) and client portfolios (/p/:slug)
+    should be added dynamically.
+    
+    To generate a complete sitemap with dynamic content:
+    1. Create a serverless function or script that queries Supabase
+    2. Fetch all published projects and portfolios
+    3. Generate XML with all URLs
+    4. Update this file or serve dynamically
+    
+    Example query:
+    SELECT slug FROM projects WHERE published = true;
+    SELECT slug FROM client_portfolios WHERE published = true;
+  -->
+</urlset>
