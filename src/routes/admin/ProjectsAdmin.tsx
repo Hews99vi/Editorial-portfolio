@@ -13,6 +13,9 @@ interface Project {
     slug: string;
     published: boolean;
     featured: boolean;
+    home_featured: boolean;
+    home_recent: boolean;
+    home_best: boolean;
     updated_at: string;
 }
 
@@ -25,7 +28,7 @@ export const ProjectsAdmin: React.FC = () => {
     const fetchProjects = async () => {
         const { data } = await supabase
             .from('projects')
-            .select('id, title, slug, published, featured, updated_at')
+            .select('id, title, slug, published, featured, home_featured, home_recent, home_best, updated_at')
             .order('updated_at', { ascending: false });
 
         if (data) setProjects(data);
@@ -36,7 +39,11 @@ export const ProjectsAdmin: React.FC = () => {
         fetchProjects();
     }, []);
 
-    const handleToggle = async (id: string, field: 'published' | 'featured', currentValue: boolean) => {
+    const handleToggle = async (
+        id: string,
+        field: 'published' | 'featured' | 'home_featured' | 'home_recent' | 'home_best',
+        currentValue: boolean
+    ) => {
         const { error } = await (supabase
             .from('projects')
             .update as any)({ [field]: !currentValue })
@@ -108,6 +115,9 @@ export const ProjectsAdmin: React.FC = () => {
                                     Featured
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Home Sections
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Updated
                                 </th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -143,6 +153,37 @@ export const ProjectsAdmin: React.FC = () => {
                                         >
                                             {project.featured ? 'Featured' : 'Normal'}
                                         </button>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex flex-wrap gap-2">
+                                            <button
+                                                onClick={() => handleToggle(project.id, 'home_featured', project.home_featured)}
+                                                className={`px-3 py-1 rounded-full text-xs font-medium ${project.home_featured
+                                                    ? 'bg-purple-100 text-purple-700'
+                                                    : 'bg-gray-100 text-gray-700'
+                                                    }`}
+                                            >
+                                                Featured
+                                            </button>
+                                            <button
+                                                onClick={() => handleToggle(project.id, 'home_recent', project.home_recent)}
+                                                className={`px-3 py-1 rounded-full text-xs font-medium ${project.home_recent
+                                                    ? 'bg-blue-100 text-blue-700'
+                                                    : 'bg-gray-100 text-gray-700'
+                                                    }`}
+                                            >
+                                                Recent
+                                            </button>
+                                            <button
+                                                onClick={() => handleToggle(project.id, 'home_best', project.home_best)}
+                                                className={`px-3 py-1 rounded-full text-xs font-medium ${project.home_best
+                                                    ? 'bg-emerald-100 text-emerald-700'
+                                                    : 'bg-gray-100 text-gray-700'
+                                                    }`}
+                                            >
+                                                Best
+                                            </button>
+                                        </div>
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-600">
                                         {format(new Date(project.updated_at), 'MMM d, yyyy')}

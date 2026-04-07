@@ -28,6 +28,9 @@ export interface Database {
                     live_url: string | null
                     github_url: string | null
                     featured: boolean
+                    home_featured: boolean
+                    home_recent: boolean
+                    home_best: boolean
                     published: boolean
                     created_at: string
                     updated_at: string

@@ -24,6 +24,7 @@ const PortfoliosAdmin = lazy(() => import('./routes/admin/PortfoliosAdmin').then
 const PortfolioEditor = lazy(() => import('./routes/admin/PortfolioEditor').then(m => ({ default: m.PortfolioEditor })));
 const MessagesAdmin = lazy(() => import('./routes/admin/MessagesAdmin').then(m => ({ default: m.MessagesAdmin })));
 const SettingsAdmin = lazy(() => import('./routes/admin/SettingsAdmin').then(m => ({ default: m.SettingsAdmin })));
+const HomeSectionsAdmin = lazy(() => import('./routes/admin/HomeSectionsAdmin').then(m => ({ default: m.HomeSectionsAdmin })));
 
 import './styles/global.css';
 
@@ -114,6 +115,14 @@ function App() {
               element={
                 <Suspense fallback={<LoadingFallback />}>
                   <MessagesAdmin />
+                </Suspense>
+              }
+            />
+            <Route
+              path="home-sections"
+              element={
+                <Suspense fallback={<LoadingFallback />}>
+                  <HomeSectionsAdmin />
                 </Suspense>
               }
             />

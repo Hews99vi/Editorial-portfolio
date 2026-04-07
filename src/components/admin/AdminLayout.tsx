@@ -1,6 +1,6 @@
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import { LayoutDashboard, FileText, Users, Mail, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, Mail, Settings, LogOut, PanelsTopLeft } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
     const navigate = useNavigate();
@@ -16,6 +16,7 @@ export const AdminLayout: React.FC = () => {
         { to: '/admin/projects', label: 'Projects', icon: FileText },
         { to: '/admin/portfolios', label: 'Portfolios', icon: Users },
         { to: '/admin/messages', label: 'Messages', icon: Mail },
+        { to: '/admin/home-sections', label: 'Home Sections', icon: PanelsTopLeft },
         { to: '/admin/settings', label: 'Settings', icon: Settings },
     ];
 

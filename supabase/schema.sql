@@ -24,6 +24,12 @@ CREATE TABLE IF NOT EXISTS projects (
     live_url TEXT,
     github_url TEXT,
     featured BOOLEAN DEFAULT false,
+    home_featured BOOLEAN DEFAULT false,
+    home_recent BOOLEAN DEFAULT false,
+    home_best BOOLEAN DEFAULT false,
+    home_featured_order INTEGER,
+    home_recent_order INTEGER,
+    home_best_order INTEGER,
     published BOOLEAN DEFAULT false,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()

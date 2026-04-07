@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { SEO } from '@/components/SEO';
-import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { FadeIn } from '@/components/motion/FadeIn';
-import { ArrowRight, Code, Zap, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface Project {
@@ -13,43 +11,125 @@ interface Project {
     slug: string;
     summary: string;
     tags: string[];
-    images: any;
-    featured: boolean;
+    images: string[];
 }
 
 interface SiteSettings {
     display_name: string;
     headline: string;
     subheadline: string;
-    upwork_link: string | null;
-    fiverr_link: string | null;
+    socials?: {
+        github?: string;
+        linkedin?: string;
+        twitter?: string;
+    };
 }
 
+const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
+    const image = project.images?.[0];
+
+    return (
+        <Link to={`/projects/${project.slug}`}>
+            <Card hover className="group overflow-hidden border-white/10 bg-white/5">
+                <div className="relative aspect-[16/9] bg-white/5">
+                    {image ? (
+                        <img
+                            src={image}
+                            alt={project.title}
+                            className="absolute inset-0 h-full w-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105"
+                            loading="lazy"
+                        />
+                    ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5" />
+                    )}
+                </div>
+                <div className="p-6">
+                    <h3 className="text-lg font-semibold text-white">{project.title}</h3>
+                    <p className="mt-2 text-sm text-graphite-400">{project.summary}</p>
+                    {project.tags?.length > 0 && (
+                        <div className="mt-4 flex flex-wrap gap-3 text-xs font-mono text-emerald-400">
+                            {project.tags.slice(0, 3).map((tag) => (
+                                <span key={tag}>{tag}</span>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </Card>
+        </Link>
+    );
+};
+
+const ProjectSection: React.FC<{ id: string; title: string; projects: Project[] }> = ({ id, title, projects }) => {
+    return (
+        <section id={id} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <FadeIn>
+                <h2 className="text-2xl sm:text-3xl font-semibold text-center text-white">{title}</h2>
+            </FadeIn>
+            {projects.length === 0 ? (
+                <div className="mt-10 text-center text-sm text-graphite-500">No projects yet.</div>
+            ) : (
+                <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {projects.map((project, index) => (
+                        <FadeIn key={project.id} delay={index * 0.05}>
+                            <ProjectCard project={project} />
+                        </FadeIn>
+                    ))}
+                </div>
+            )}
+        </section>
+    );
+};
+
 export const Home: React.FC = () => {
-    const [projects, setProjects] = useState<Project[]>([]);
+    const [featuredProjects, setFeaturedProjects] = useState<Project[]>([]);
+    const [recentProjects, setRecentProjects] = useState<Project[]>([]);
+    const [bestProjects, setBestProjects] = useState<Project[]>([]);
     const [settings, setSettings] = useState<SiteSettings | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
-            // Fetch settings
-            const { data: settingsData } = await supabase
-                .from('site_settings')
-                .select('*')
-                .single();
+            const [settingsRes, featuredRes, recentRes, bestRes, allRecentRes] = await Promise.all([
+                supabase.from('site_settings').select('*').single(),
+                supabase
+                    .from('projects')
+                    .select('id, title, slug, summary, tags, images')
+                    .eq('published', true)
+                    .eq('home_featured', true)
+                    .order('home_featured_order', { ascending: true, nullsFirst: false })
+                    .order('created_at', { ascending: false }),
+                supabase
+                    .from('projects')
+                    .select('id, title, slug, summary, tags, images')
+                    .eq('published', true)
+                    .eq('home_recent', true)
+                    .order('home_recent_order', { ascending: true, nullsFirst: false })
+                    .order('created_at', { ascending: false }),
+                supabase
+                    .from('projects')
+                    .select('id, title, slug, summary, tags, images')
+                    .eq('published', true)
+                    .eq('home_best', true)
+                    .order('home_best_order', { ascending: true, nullsFirst: false })
+                    .order('created_at', { ascending: false }),
+                supabase
+                    .from('projects')
+                    .select('id, title, slug, summary, tags, images')
+                    .eq('published', true)
+                    .order('created_at', { ascending: false })
+                    .limit(3),
+            ]);
 
-            if (settingsData) setSettings(settingsData);
+            if (settingsRes.data) setSettings(settingsRes.data as SiteSettings);
 
-            // Fetch featured projects
-            const { data: projectsData } = await supabase
-                .from('projects')
-                .select('*')
-                .eq('published', true)
-                .eq('featured', true)
-                .order('created_at', { ascending: false })
-                .limit(3);
+            const featured = (featuredRes.data || []) as Project[];
+            const recent = (recentRes.data || []) as Project[];
+            const best = (bestRes.data || []) as Project[];
+            const fallback = (allRecentRes.data || []) as Project[];
 
-            if (projectsData) setProjects(projectsData);
+            setFeaturedProjects(featured.length > 0 ? featured : fallback);
+            setRecentProjects(recent.length > 0 ? recent : fallback);
+            setBestProjects(best.length > 0 ? best : fallback);
             setLoading(false);
         };
 
@@ -57,10 +137,16 @@ export const Home: React.FC = () => {
     }, []);
 
     if (loading) {
-        return <div className="min-h-screen flex items-center justify-center">
-            <div className="text-graphite-400">Loading...</div>
-        </div>;
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-graphite-400">Loading...</div>
+            </div>
+        );
     }
+
+    const displayName = settings?.display_name || 'John Doe';
+    const roleLine = settings?.headline || 'Senior Full-Stack Engineer';
+    const githubLink = settings?.socials?.github || 'https://github.com';
 
     return (
         <>
@@ -70,129 +156,68 @@ export const Home: React.FC = () => {
                 type="website"
             />
             <div className="min-h-screen">
-                {/* Hero */}
-                <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
+                <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-20 flex flex-col items-center gap-16 sm:gap-24">
                     <FadeIn>
-                        <h1 className="text-display-lg md:text-display-lg text-gradient mb-6">
-                            {settings?.headline || 'Building Exceptional Digital Experiences'}
-                        </h1>
-                        <p className="text-xl md:text-2xl text-graphite-300 max-w-3xl mb-10">
-                            {settings?.subheadline || 'Premium tech editorial portfolio showcasing world-class engineering and design.'}
-                        </p>
-                        <div className="flex flex-wrap gap-4">
-                            <Link to="/projects">
-                                <Button size="lg">
-                                    View Work <ArrowRight size={20} />
-                                </Button>
-                            </Link>
-                            {settings?.upwork_link && (
-                                <a href={settings.upwork_link} target="_blank" rel="noopener noreferrer">
-                                    <Button variant="secondary" size="lg">
-                                        Hire on Upwork
-                                    </Button>
-                                </a>
-                            )}
-                        </div>
-                    </FadeIn>
-                </section>
-
-                {/* Selected Work */}
-                {projects.length > 0 && (
-                    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-                        <FadeIn>
-                            <h2 className="text-display-sm mb-12 text-gradient">Selected Work</h2>
-                        </FadeIn>
-                        <div className="grid grid-cols-1 gap-8">
-                            {projects.map((project, index) => (
-                                <FadeIn key={project.id} delay={index * 0.1}>
-                                    <Link to={`/projects/${project.slug}`}>
-                                        <Card hover className="overflow-hidden">
-                                            <div className="flex flex-col md:flex-row gap-0">
-                                                {/* Project Image */}
-                                                {project.images && project.images.length > 0 && (
-                                                    <div className="md:w-2/5 relative aspect-video md:aspect-square overflow-hidden bg-dark-800">
-                                                        <img
-                                                            src={project.images[0]}
-                                                            alt={project.title}
-                                                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                                            loading="lazy"
-                                                        />
-                                                    </div>
-                                                )}
-
-                                                {/* Project Content */}
-                                                <div className="flex-1 p-8">
-                                                    <h3 className="text-2xl font-bold text-graphite-100 mb-3">
-                                                        {project.title}
-                                                    </h3>
-                                                    <p className="text-graphite-400 mb-4">{project.summary}</p>
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {project.tags?.slice(0, 3).map((tag: string) => (
-                                                            <span key={tag} className="px-3 py-1 bg-dark-600 text-graphite-300 text-xs rounded-full">
-                                                                {tag}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </Card>
-                                    </Link>
-                                </FadeIn>
-                            ))}
-                        </div>
-                        <FadeIn delay={0.3}>
-                            <div className="text-center mt-12">
-                                <Link to="/projects">
-                                    <Button variant="secondary">
-                                        View All Projects <ArrowRight size={18} />
-                                    </Button>
-                                </Link>
+                        <div id="terminal" className="w-full max-w-2xl">
+                            <div className="rounded-2xl border border-white/10 bg-white/5 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] backdrop-blur-md overflow-hidden">
+                                <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/5">
+                                    <div className="flex items-center gap-2">
+                                        <span className="h-3 w-3 rounded-full bg-[#FF5F56]" />
+                                        <span className="h-3 w-3 rounded-full bg-[#FFBD2E]" />
+                                        <span className="h-3 w-3 rounded-full bg-[#27C93F]" />
+                                    </div>
+                                    <div className="text-xs font-mono text-graphite-400">zsh — 80x24</div>
+                                    <div className="w-12" />
+                                </div>
+                                <div className="p-6 space-y-4 font-mono text-sm sm:text-base">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-graphite-400">&gt;</span>
+                                        <span className="text-white">whoami</span>
+                                    </div>
+                                    <div className="text-graphite-200">{displayName}, {roleLine}</div>
+                                    <div className="flex items-center gap-2 pt-2">
+                                        <span className="text-graphite-400">&gt;</span>
+                                        <span className="text-white">cat skills.txt</span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-4 text-emerald-400 font-bold">
+                                        <span>React</span>
+                                        <span>Node.js</span>
+                                        <span>TypeScript</span>
+                                        <span>AWS</span>
+                                        <span>PostgreSQL</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 pt-2">
+                                        <span className="text-graphite-400">&gt;</span>
+                                        <span className="inline-block h-5 w-2 bg-white" />
+                                    </div>
+                                </div>
                             </div>
-                        </FadeIn>
-                    </section>
-                )}
-
-                {/* How I Work */}
-                <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-                    <FadeIn>
-                        <h2 className="text-display-sm mb-12 text-gradient">How I Work</h2>
+                        </div>
                     </FadeIn>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <FadeIn delay={0.1}>
-                            <Card className="p-8">
-                                <div className="w-12 h-12 bg-accent-blue/10 rounded-lg flex items-center justify-center mb-4">
-                                    <Code className="text-accent-blue" size={24} />
-                                </div>
-                                <h3 className="text-xl font-bold text-graphite-100 mb-3">Engineering Excellence</h3>
-                                <p className="text-graphite-400">
-                                    Clean, maintainable code with modern best practices and comprehensive testing.
-                                </p>
-                            </Card>
-                        </FadeIn>
-                        <FadeIn delay={0.2}>
-                            <Card className="p-8">
-                                <div className="w-12 h-12 bg-accent-purple/10 rounded-lg flex items-center justify-center mb-4">
-                                    <Zap className="text-accent-purple" size={24} />
-                                </div>
-                                <h3 className="text-xl font-bold text-graphite-100 mb-3">Fast Execution</h3>
-                                <p className="text-graphite-400">
-                                    Rapid iteration cycles with continuous communication and transparent progress.
-                                </p>
-                            </Card>
-                        </FadeIn>
-                        <FadeIn delay={0.3}>
-                            <Card className="p-8">
-                                <div className="w-12 h-12 bg-accent-cyan/10 rounded-lg flex items-center justify-center mb-4">
-                                    <Users className="text-accent-cyan" size={24} />
-                                </div>
-                                <h3 className="text-xl font-bold text-graphite-100 mb-3">Clear Communication</h3>
-                                <p className="text-graphite-400">
-                                    Regular updates, detailed documentation, and proactive problem-solving.
-                                </p>
-                            </Card>
-                        </FadeIn>
-                    </div>
+
+                    <FadeIn delay={0.1}>
+                        <div className="flex flex-wrap justify-center gap-4">
+                            <Link
+                                to="/contact"
+                                className="min-w-[160px] rounded-full bg-white px-8 py-3 text-center text-sm sm:text-base font-semibold text-black"
+                            >
+                                Contact Me
+                            </Link>
+                            <a
+                                href={githubLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="min-w-[160px] rounded-full border border-white/20 bg-white/5 px-8 py-3 text-center text-sm sm:text-base font-semibold text-white backdrop-blur-md"
+                            >
+                                View GitHub
+                            </a>
+                        </div>
+                    </FadeIn>
                 </section>
+
+                <ProjectSection id="projects" title="Featured Projects" projects={featuredProjects} />
+                <ProjectSection id="experience" title="Recent Works" projects={recentProjects} />
+                <ProjectSection id="best" title="Best Ranked" projects={bestProjects} />
             </div>
         </>
     );

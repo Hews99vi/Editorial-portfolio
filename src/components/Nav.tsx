@@ -1,74 +1,39 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
-import { useState } from 'react';
 
 export const Nav: React.FC = () => {
-    const [isOpen, setIsOpen] = useState(false);
     const location = useLocation();
 
     const links = [
-        { to: '/', label: 'Home' },
+        { to: '/about', label: 'About Me' },
+        { to: '/services', label: 'Experience' },
         { to: '/projects', label: 'Projects' },
-        { to: '/services', label: 'Services' },
-        { to: '/about', label: 'About' },
-        { to: '/contact', label: 'Contact' },
+        { to: '/#terminal', label: 'Terminal' },
     ];
 
     const isActive = (path: string) => location.pathname === path;
 
     return (
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-dark-900/80 backdrop-blur-lg border-b border-graphite-800/50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16">
-                    {/* Logo */}
-                    <Link to="/" className="text-xl font-bold text-gradient">
-                        Portfolio
-                    </Link>
+        <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50">
+            <div className="flex items-center gap-6 sm:gap-8 px-5 sm:px-6 py-2 rounded-full bg-dark-800/60 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.37)] backdrop-blur-md text-xs sm:text-sm">
+                {links.map((link) => {
+                    const active = isActive(link.to);
+                    const baseClass = `font-medium transition-colors ${active ? 'text-white' : 'text-white/80 hover:text-white'}`;
 
-                    {/* Desktop Nav */}
-                    <div className="hidden md:flex items-center gap-8">
-                        {links.map((link) => (
-                            <Link
-                                key={link.to}
-                                to={link.to}
-                                className={`text-sm font-medium transition-colors ${isActive(link.to)
-                                        ? 'text-accent-blue'
-                                        : 'text-graphite-300 hover:text-graphite-100'
-                                    }`}
-                            >
+                    if (link.to.startsWith('/#')) {
+                        return (
+                            <a key={link.to} href={link.to} className={baseClass}>
                                 {link.label}
-                            </Link>
-                        ))}
-                    </div>
+                            </a>
+                        );
+                    }
 
-                    {/* Mobile menu button */}
-                    <button
-                        className="md:hidden text-graphite-300 hover:text-graphite-100"
-                        onClick={() => setIsOpen(!isOpen)}
-                    >
-                        {isOpen ? <X size={24} /> : <Menu size={24} />}
-                    </button>
-                </div>
-
-                {/* Mobile Nav */}
-                {isOpen && (
-                    <div className="md:hidden py-4 border-t border-graphite-800">
-                        {links.map((link) => (
-                            <Link
-                                key={link.to}
-                                to={link.to}
-                                onClick={() => setIsOpen(false)}
-                                className={`block py-2 text-sm font-medium transition-colors ${isActive(link.to)
-                                        ? 'text-accent-blue'
-                                        : 'text-graphite-300 hover:text-graphite-100'
-                                    }`}
-                            >
-                                {link.label}
-                            </Link>
-                        ))}
-                    </div>
-                )}
+                    return (
+                        <Link key={link.to} to={link.to} className={baseClass}>
+                            {link.label}
+                        </Link>
+                    );
+                })}
             </div>
         </nav>
     );

@@ -33,8 +33,9 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['"Nimbus Sans"', 'system-ui', 'sans-serif'],
+        display: ['"Nimbus Sans"', 'system-ui', 'sans-serif'],
+        mono: ['"Liberation Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       fontSize: {
         'display-lg': ['4.5rem', { lineHeight: '1', letterSpacing: '-0.02em', fontWeight: '700' }],

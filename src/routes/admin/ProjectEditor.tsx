@@ -35,6 +35,9 @@ export const ProjectEditor: React.FC = () => {
         live_url: '',
         github_url: '',
         featured: false,
+        home_featured: false,
+        home_recent: false,
+        home_best: false,
         published: false,
     });
 
@@ -297,7 +300,7 @@ export const ProjectEditor: React.FC = () => {
                 />
 
                 {/* Toggles */}
-                <div className="flex gap-6">
+                <div className="flex flex-wrap gap-6">
                     <label className="flex items-center gap-2">
                         <input
                             type="checkbox"
@@ -306,6 +309,33 @@ export const ProjectEditor: React.FC = () => {
                             className="rounded border-gray-300"
                         />
                         <span className="text-sm font-medium text-gray-700">Featured Project</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            checked={formData.home_featured}
+                            onChange={(e) => setFormData({ ...formData, home_featured: e.target.checked })}
+                            className="rounded border-gray-300"
+                        />
+                        <span className="text-sm font-medium text-gray-700">Show in Featured Projects</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            checked={formData.home_recent}
+                            onChange={(e) => setFormData({ ...formData, home_recent: e.target.checked })}
+                            className="rounded border-gray-300"
+                        />
+                        <span className="text-sm font-medium text-gray-700">Show in Recent Works</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            checked={formData.home_best}
+                            onChange={(e) => setFormData({ ...formData, home_best: e.target.checked })}
+                            className="rounded border-gray-300"
+                        />
+                        <span className="text-sm font-medium text-gray-700">Show in Best Ranked</span>
                     </label>
                 </div>
 

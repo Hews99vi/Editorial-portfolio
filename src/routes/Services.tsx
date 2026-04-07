@@ -38,26 +38,28 @@ export const Services: React.FC = () => {
     ];
 
     return (
-        <div className="min-h-screen py-20">
+        <div className="min-h-screen py-12 sm:py-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <FadeIn>
-                    <h1 className="text-display-md text-gradient mb-6">Services</h1>
-                    <p className="text-xl text-graphite-300 max-w-2xl mb-16">
-                        Comprehensive digital solutions from concept to deployment, delivered with technical excellence and creative thinking.
-                    </p>
+                    <div className="text-center">
+                        <h1 className="text-3xl sm:text-5xl font-semibold text-white mb-4">Services</h1>
+                        <p className="text-base sm:text-lg text-graphite-400 max-w-2xl mx-auto">
+                            Comprehensive digital solutions from concept to deployment, delivered with technical excellence and creative thinking.
+                        </p>
+                    </div>
                 </FadeIn>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {services.map((service, index) => (
                         <FadeIn key={service.title} delay={index * 0.1}>
-                            <Card className="p-8 h-full">
-                                <div className="w-16 h-16 bg-accent-blue/10 rounded-xl flex items-center justify-center mb-6 text-accent-blue">
+                            <Card className="p-8 h-full border-white/10 bg-white/5">
+                                <div className="w-14 h-14 rounded-full border border-white/10 bg-white/5 flex items-center justify-center mb-6 text-white/80">
                                     {service.icon}
                                 </div>
-                                <h3 className="text-xl font-bold text-graphite-100 mb-3">
+                                <h3 className="text-lg font-semibold text-white mb-3">
                                     {service.title}
                                 </h3>
-                                <p className="text-graphite-400">
+                                <p className="text-sm text-graphite-400">
                                     {service.description}
                                 </p>
                             </Card>

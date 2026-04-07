@@ -83,6 +83,9 @@ CREATE INDEX IF NOT EXISTS idx_client_portfolios_published ON client_portfolios(
 
 -- Index on featured for homepage queries
 CREATE INDEX IF NOT EXISTS idx_projects_featured ON projects(featured) WHERE featured = true;
+CREATE INDEX IF NOT EXISTS idx_projects_home_featured ON projects(home_featured) WHERE home_featured = true;
+CREATE INDEX IF NOT EXISTS idx_projects_home_recent ON projects(home_recent) WHERE home_recent = true;
+CREATE INDEX IF NOT EXISTS idx_projects_home_best ON projects(home_best) WHERE home_best = true;
 
 -- Composite index for portfolio_projects lookups
 CREATE INDEX IF NOT EXISTS idx_portfolio_projects_portfolio_id 
